@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
+from routes import destinations, recommendations
 import models  # noqa: F401
 from routes import destinations
 
@@ -16,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(destinations.router)
+app.include_router(recommendations.router)
 
 @app.get("/")
 def home():

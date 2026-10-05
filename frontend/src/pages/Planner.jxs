@@ -1,0 +1,127 @@
+import { useState } from "react";
+import { getRecommendations } from "../services/api";
+
+const INTERESTS = ["nature", "adventure", "culture", "nightlife", "relaxation"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const CITIES = ["Mumbai", "Pune", "Delhi", "Bangalore", "Chennai", "Hyderabad", "Kolkata"];
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+export default function Planner() {
+  const [form, setForm] = useState({
+    start_city: "Pune",
+    budget: 20000,
+    days: 5,
+    travelers: 3,
+    month: "Dec",
+    interests: ["nature", "adventure"],
+    travel_style: "budget",
+  });
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  const toggleInterest = (name) =>
+    setForm((f) => ({
+      ...f,
+      interests: f.interests.includes(name)
+        ? f.interests.filter((i) => i !== name)
+        : [...f.interests, name],
+    }));
+
+  const submit = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await getRecommendations({
+        ...form,
+        budget: Number(form.budget),
+        days: Number(form.days),
+        travelers: Number(form.travelers),
+      });
+      setResults(res.data);
+    } catch {
+      setError("Could not get recommendations. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const field = { display: "block", marginBottom: 12 };
+
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: 24, fontFamily: "sans-serif" }}>
+      <h1>Voyager ✈️</h1>
+      <p>Plan smarter. Travel wiser.</p>
+
+      <label style={field}>
+        Starting city
+        <select value={form.start_city} onChange={(e) => update("start_city", e.target.value)}>
+          {CITIES.map((c) => <option key={c}>{c}</option>)}
+        </select>
+      </label>
+
+      <label style={field}>
+        Budget per person (₹)
+        <input type="number" value={form.budget} onChange={(e) => update("budget", e.target.value)} />
+      </label>
+
+      <label style={field}>
+        Days
+        <input type="number" min="1" max="30" value={form.days} onChange={(e) => update("days", e.target.value)} />
+      </label>
+
+      <label style={field}>
+        Travelers
+        <input type="number" min="1" value={form.travelers} onChange={(e) => update("travelers", e.target.value)} />
+      </label>
+
+      <label style={field}>
+        Month
+        <select value={form.month} onChange={(e) => update("month", e.target.value)}>
+          {MONTHS.map((m) => <option key={m}>{m}</option>)}
+        </select>
+      </label>
+
+      <label style={field}>
+        Travel style
+        <select value={form.travel_style} onChange={(e) => update("travel_style", e.target.value)}>
+          <option value="budget">Budget</option>
+          <option value="standard">Standard</option>
+          <option value="luxury">Luxury</option>
+        </select>
+      </label>
+
+      <div style={field}>
+        Interests
+        {INTERESTS.map((i) => (
+          <label key={i} style={{ marginLeft: 12 }}>
+            <input type="checkbox" checked={form.interests.includes(i)} onChange={() => toggleInterest(i)} /> {i}
+          </label>
+        ))}
+      </div>
+
+      <button onClick={submit} disabled={loading}>
+        {loading ? "Finding trips..." : "Generate My Trip"}
+      </button>
+
+      {error && <p style={{ color: "crimson" }}>{error}</p>}
+
+      <div style={{ marginTop: 24 }}>
+        {results.map((r, idx) => (
+          <div key={r.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 16, marginBottom: 12 }}>
+            <h2 style={{ margin: 0 }}>
+              {MEDALS[idx]} {r.name}, {r.state} - {r.match_score}% match
+            </h2>
+            <p>{r.description}</p>
+            <p>Estimated cost: ₹{r.estimated_cost_per_person.toLocaleString("en-IN")} per person</p>
+            <ul>
+              {r.reasons.map((reason, i) => <li key={i}>{reason}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
