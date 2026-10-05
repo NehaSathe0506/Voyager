@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets - NEVER commit
+.env
+*.pem
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# AI artifacts (regenerate locally)
+ai/vector_store/
+*.faiss
+*.index
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
