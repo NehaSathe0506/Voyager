@@ -1,4 +1,6 @@
 import { useState } from "react";
+import BudgetPlan from "../components/BudgetPlan";
+import Itinerary from "../components/Itinerary";
 import { getRecommendations } from "../services/api";
 
 const INTERESTS = ["nature", "adventure", "culture", "nightlife", "relaxation"];
@@ -119,6 +121,8 @@ export default function Planner() {
             <ul>
               {r.reasons.map((reason, i) => <li key={i}>{reason}</li>)}
             </ul>
+               <BudgetPlan destinationId={r.id} form={form} />
+               <Itinerary destinationId={r.id} form={form} />
           </div>
         ))}
       </div>

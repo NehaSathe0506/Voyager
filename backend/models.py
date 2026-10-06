@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, Numeric, Float
+from sqlalchemy import Column, Integer, String, Text, Numeric, Float, Boolean, ForeignKey
 from database import Base
 
 class Destination(Base):
@@ -18,3 +19,16 @@ class Destination(Base):
     culture_score = Column(Integer, default=5)
     nightlife_score = Column(Integer, default=5)
     relaxation_score = Column(Integer, default=5)
+
+class Attraction(Base):
+    __tablename__ = "attractions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    destination_id = Column(Integer, ForeignKey("destinations.id"), nullable=False)
+    name = Column(String(150), nullable=False)
+    category = Column(String(30))          # nature, adventure, culture, nightlife, relaxation
+    latitude = Column(Float)
+    longitude = Column(Float)
+    duration_hours = Column(Float, default=2)
+    cost = Column(Numeric(10, 2), default=0)   # INR per person
+    outdoor = Column(Boolean, default=True)
